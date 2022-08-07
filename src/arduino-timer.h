@@ -170,6 +170,34 @@ class Timer {
         return ticks;
     }
 
+    /* Time remaining (ms) until task is executed */
+    unsigned long
+    timeRemainingMs(Task &task)
+    {
+        unsigned long timeRemaining = 0UL;
+
+        if (!task)
+        {
+            return timeRemaining;
+        }
+
+        timer_foreach_const_task(taskForEach)
+        {
+            if (taskForEach->handler && task_id(taskForEach) == task)
+            {
+                const unsigned long timeCurrent = time_func();
+                const unsigned long timeElapsed = timeCurrent - taskForEach->start;
+                const unsigned long timeTaskExpires = taskForEach->expires;
+
+                if (timeElapsed < timeTaskExpires)
+                {
+                    timeRemaining = (timeTaskExpires - timeElapsed);
+                }
+            }
+        }
+        return timeRemaining;
+    }
+    
     /* Number of active tasks in the timer */
     size_t
     size() const
